@@ -340,8 +340,49 @@ server <- function(input, output, session) {
     
     shiny::observeEvent(input$twitter, {
         
+        raw <- div(
+            tags$h4(
+                "Research Question"
+            ),
+            tags$ul(
+                tags$li(
+                    "Finding related words that are used most common together in a tweet."
+                )
+            ),
+            tags$h4(
+                "Data Collection/Cleaning"
+            ),
+            tags$ul(
+                tags$li(
+                    "Data collection was done by using Twitter's free API to pull tweets from their platform."
+                )
+            ),
+            tags$h4(
+                "Application"
+            ),
+            tags$ul(
+                tags$li(
+                    "The application consists of 4 pages. The first page lets you pull the data from any location and shows the 10-20
+                    most common words from the collected tweets. The second page shows a network graph which lets you explore
+                    bigrams. The third page consists of wordclouds of hashtags, handles, and words. The fourth page is a table with the
+                    collected tweets"
+                )
+            )
+        )
+        
         shiny::modalDialog(
-            title = "Blog Posts",
+            title = div(
+                tags$img(
+                    src = "twitter_icon.png",
+                    width = "70",
+                    height = "70",
+                ),
+            "Twitter Keyword Tool",
+            style = "font-size: 30pt;
+                 border-top-width: 10px;
+                 padding-left: 10px;"
+            ),
+            raw,
             easyClose = TRUE,
             size = "l"
         ) %>% 
@@ -351,8 +392,57 @@ server <- function(input, output, session) {
     
     shiny::observeEvent(input$ships, {
         
+        raw <- div(
+            tags$h4(
+                "Research Question"
+            ),
+            tags$ul(
+                tags$li(
+                    "Surrey is known for its crime and violence, hence, I was interested in visualizing certain crime types
+                     in the Surrey municipality. This projects serves a a visualization tool that shows where and when 
+                     crimes are happening."
+                )
+            ),
+            tags$h4(
+                "Data Collection/Cleaning"
+            ),
+            tags$ul(
+                tags$li(
+                    "The data was collected from the City of Surrey. In order to visualize very single crime, I used the Google
+                     Maps library to get latitude and longitude values as well as all the neighborhoods of where the crimes were
+                     happening. With the help of the sf library, I was able to categorize the latitude and longitude values 
+                     into the different neighborhoods of Surrey."
+                )
+            ),
+            tags$h4(
+                "Application"
+            ),
+            tags$ul(
+                tags$li(
+                    "The first page of the application shows a map of where the crimes are happening and what type of crimes
+                     there are. There is also a crime count, visualized with the highcharter library."
+                ),
+                tags$li(
+                    "On the second page, users are able to group certain variables by their choosing. A table is displayed that
+                     shows how crimes have changed over time and plotly plots are being created for every single selected 
+                     neighbourhood that shows the change in crimes over time."
+                )
+            )
+        )
+        
         shiny::modalDialog(
-            title = "Blog Posts",
+            title = div(
+                tags$img(
+                    src = "marine_ships.png",
+                    width = "150",
+                    height = "60",
+                ),
+                "Marine Ships",
+                style = "font-size: 30pt;
+                 border-top-width: 10px;
+                 padding-left: 10px;"
+            ),
+            raw,
             easyClose = TRUE,
             size = "l"
         ) %>% 
@@ -362,8 +452,23 @@ server <- function(input, output, session) {
     
     shiny::observeEvent(input$blog, {
         
+        raw <- div(
+            tags$h4(
+                "ThatDataTho"
+            ),
+            tags$ul(
+                tags$li(
+                    "I started this blog in January 2018, during my 4th year as an undergraduate student, out of a 
+                    passion to learn new things and at the same time hoped to be able to teach others with
+                    my posts. After all, I think learning by teaching is very powerful. I also started my blogging 
+                    journey as a way to be able to formulate my thoughts and look at my learnings over the years."
+                )
+            )
+        )
+        
         shiny::modalDialog(
             title = "Blog Posts",
+            raw,
             easyClose = TRUE,
             size = "l"
         ) %>% 
