@@ -18,7 +18,7 @@ create_cards <- function(data) {
                      div(
                        class = "panel-body",
                        tags$img(
-                         class = "img img-thumbnail",
+                         class = "img img-thumbnail text-center",
                          src   = .$img
                        ),
                        tags$br(), tags$br(),
