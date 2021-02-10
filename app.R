@@ -1,6 +1,5 @@
 library(shiny)
 library(tidyverse)
-library(here)
 library(wordcloud2)
 library(forcats)
 
@@ -16,20 +15,26 @@ source("utils/meta_data/app_data.R", local = TRUE)
 source("utils/meta_data/blog_data.R", local = TRUE)
 source("utils/meta_data/tutorials_data.R", local = TRUE)
 
-# get number of reports in file
+# get number of apps in file
 number_of_reports <- ls(pattern = "^app_") %>% 
     length()
 
 n_reports <- paste0("app_", 1:number_of_reports)
 app_catalog_tbl <- bind_rows(mget(n_reports), .id = "id")
 
-# get number of reports in file
+# get number of shiny tutorials in file
 number_of_reports <- ls(pattern = "^tutorial_") %>% 
     length()
 
 n_reports <- paste0("tutorial_", 1:number_of_reports)
 tutorial_catalog_tbl <- bind_rows(mget(n_reports), .id = "id")
 
+# get number of blog posts in file
+number_of_reports <- ls(pattern = "^blog_") %>% 
+    length()
+
+n_reports <- paste0("blog_", 1:number_of_reports)
+blog_catalog_tbl <- bind_rows(mget(n_reports), .id = "id")
 
 # Define UI for application that draws a histogram
 ui <- shiny::bootstrapPage(
@@ -52,16 +57,16 @@ ui <- shiny::bootstrapPage(
                 tags$ul(
                     class = "text-center",
                     tags$li(
-                        tags$a(href = "#Profile", "Profile", class = "active-list")
+                        tags$a(href = "#Profile", "Profile", class = "active-list", id = "profile")
                     ),
                     tags$li(
-                        tags$a(href = "#Experience", "Experience")
+                        tags$a(href = "#Experience", "Experience", id = "experience")
                     ),
                     tags$li(
-                        tags$a(href = "#Projects", "Projects")
+                        tags$a(href = "#Projects", "Projects", id = "projects")
                     ),
                     tags$li(
-                        tags$a(href = "#Skills", "Skills")
+                        tags$a(href = "#Skills", "Skills", id = "skills")
                     )
                 )
             ),
@@ -84,8 +89,12 @@ ui <- shiny::bootstrapPage(
         
         shiny::tabPanel(
             title = "Blog",
-            value = "show_blog"
             
+            div(
+                class = "container",
+                style = "padding-top: 125px;",
+                uiOutput(outputId = "output_cards_blog")
+            )
             
         ),
         
@@ -131,16 +140,30 @@ ui <- shiny::bootstrapPage(
 server <- function(input, output, session) {
     
     rv <- shiny::reactiveValues(data = app_catalog_tbl,
-                                data_tut = tutorial_catalog_tbl)
+                                data_tut = tutorial_catalog_tbl,
+                                data_blog = blog_catalog_tbl)
     output$output_cards <- renderUI({
         
-        print(rv$data)
         div(
             class = "container",
             div(
                 class = "row",
                 style = "display:-webkit-flex; flex-wrap:wrap",
                 create_cards(rv$data)
+                
+            )
+        )
+        
+    })
+    
+     output$output_cards_blog <- renderUI({
+        
+        div(
+            class = "container",
+            div(
+                class = "row",
+                style = "display:-webkit-flex; flex-wrap:wrap",
+                create_cards(rv$data_blog)
                 
             )
         )
@@ -348,7 +371,7 @@ server <- function(input, output, session) {
         
     })
     
-    autoInvalidate <- reactiveTimer(5000, session)
+    # autoInvalidate <- reactiveTimer(5000, session)
     output$wordcloud <- wordcloud2::renderWordcloud2({
 
 
@@ -360,6 +383,71 @@ server <- function(input, output, session) {
         wordcloud2::wordcloud2(data = df, color = "random-light", size = 0.5)
 
     })
+    
+    
+    shiny::observeEvent(input$search_button, {
+        
+        shiny::req(input$hello == "Projects")
+        search_string <- stringr::str_to_lower(input$search_box)
+        rv$data <- rv$data %>%
+            dplyr::filter(
+                stringr::str_to_lower(title) %>% stringr::str_detect(search_string) |
+                    stringr::str_to_lower(subtitle) %>% stringr::str_detect(search_string) |
+                    stringr::str_to_lower(description) %>% stringr::str_detect(search_string)
+            )
+        
+    })
+    
+    shiny::observeEvent(input$search_button, {
+        
+        shiny::req(input$hello == "Shiny Tutorials")
+        search_string <- stringr::str_to_lower(input$search_box)
+        rv$data_tut <- rv$data_tut %>%
+            dplyr::filter(
+                stringr::str_to_lower(title) %>% stringr::str_detect(search_string) |
+                    stringr::str_to_lower(subtitle) %>% stringr::str_detect(search_string) |
+                    stringr::str_to_lower(description) %>% stringr::str_detect(search_string)
+            )
+        
+    })
+    
+    shiny::observeEvent(input$search_button, {
+        
+        shiny::req(input$hello == "Blog")
+        search_string <- stringr::str_to_lower(input$search_box)
+        rv$data_blog <- rv$data_blog %>%
+            dplyr::filter(
+                stringr::str_to_lower(title) %>% stringr::str_detect(search_string) |
+                    stringr::str_to_lower(subtitle) %>% stringr::str_detect(search_string) |
+                    stringr::str_to_lower(description) %>% stringr::str_detect(search_string)
+            )
+        
+    })
+    
+    shiny::observeEvent(input$clear_button, {
+        
+        shiny::req(input$hello == "Projects")
+        shiny::updateTextInput(session = session, inputId = "search_box", value = "", placeholder = "Search")
+        rv$data <- app_catalog_tbl
+        
+    })
+    
+    shiny::observeEvent(input$clear_button, {
+        
+        shiny::req(input$hello == "Shiny Tutorials")
+        shiny::updateTextInput(session = session, inputId = "search_box", value = "", placeholder = "Search")
+        rv$data_tut <- tutorial_catalog_tbl
+        
+    })
+    
+    shiny::observeEvent(input$clear_button, {
+        
+        shiny::req(input$hello == "Blog")
+        shiny::updateTextInput(session = session, inputId = "search_box", value = "", placeholder = "Search")
+        rv$data_blog <- blog_catalog_tbl
+        
+    })
+    
     
 }
 
